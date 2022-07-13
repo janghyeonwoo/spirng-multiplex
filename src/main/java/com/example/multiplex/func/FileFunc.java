@@ -1,7 +1,11 @@
 package com.example.multiplex.func;
 
 import com.example.multiplex.entity.BoardPicture;
+import jdk.jfr.ContentType;
+import net.coobird.thumbnailator.Thumbnailator;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MimeType;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class FileFunc {
@@ -55,11 +60,13 @@ public class FileFunc {
                 if (ObjectUtils.isEmpty(contentType)) {
                     break;
                 } else {
-                    if (contentType.contains("image/jpeg")) {
+
+
+                    if (contentType.contains(MediaType.IMAGE_JPEG_VALUE)) {
                         originalFileExtension = ".jpg";
-                    } else if (contentType.contains("image/png")) {
+                    } else if (contentType.contains(MediaType.IMAGE_PNG_VALUE)) {
                         originalFileExtension = ".png";
-                    } else if (contentType.contains("image/gif")) {
+                    } else if (contentType.contains(MediaType.IMAGE_GIF_VALUE)) {
                         originalFileExtension = ".gif";
                     }
                     // 다른 파일 명이면 아무 일 하지 않는다
@@ -81,6 +88,17 @@ public class FileFunc {
                 // 저장된 파일로 변경하여 이를 보여주기 위함
                 file = new File(absolutePath + path + "/" + new_file_name);
                 multipartFile.transferTo(file);
+
+
+                //섬네일 생성 -> 섬네일 파일 이름은 중간에 s_로 시작
+                //UUID
+                String uuid = UUID.randomUUID().toString();
+                String thubmnailSaveName = absolutePath + path + "/" +"s_" + uuid +"_"+ new_file_name;
+
+                File thumbnailFile = new File(thubmnailSaveName);
+                // 섬네일 생성
+                Thumbnailator.createThumbnail(file,thumbnailFile,100,100);
+
             }
         }
 
