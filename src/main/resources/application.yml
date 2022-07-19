@@ -18,8 +18,10 @@ spring:
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-
+  redis:
+    host: localhost
+    password: 123456
+    port: 6379
 
 
 
@@ -34,3 +36,7 @@ cloud:
       bucket: pooney
     stack:
       auto: false
+
+
+server:
+  port: 9900
