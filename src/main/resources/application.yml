@@ -1,7 +1,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
@@ -21,8 +21,6 @@ spring:
 
 
 
-
-
 cloud:
   aws:
     credentials:
@@ -34,3 +32,5 @@ cloud:
       bucket: pooney
     stack:
       auto: false
+server:
+  port: 9990
