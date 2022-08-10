@@ -33,4 +33,4 @@ cloud:
     stack:
       auto: false
 server:
-  port: 9990
+  port: 10000
