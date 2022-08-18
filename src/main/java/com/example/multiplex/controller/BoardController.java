@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
@@ -43,4 +44,9 @@ public class BoardController {
 	public void download(HttpServletResponse response, @RequestParam("boardIdx") Integer boardIdx) throws IOException {
             boardService.fileDown(response,boardIdx);
 	}
+
+	@PostMapping("/excel/upload")
+    public void excelUpload(HttpServletRequest request, MultipartFile file){
+        boardService.excelUpload(file);
+    }
 }

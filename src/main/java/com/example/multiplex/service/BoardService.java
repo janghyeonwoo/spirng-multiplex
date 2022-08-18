@@ -5,7 +5,14 @@ import com.example.multiplex.entity.BoardPicture;
 import com.example.multiplex.func.FileFunc;
 import com.example.multiplex.repository.BoardPictureRepository;
 import com.example.multiplex.repository.BoardRepository;
+import com.example.multiplex.util.ExcelUtil;
+import com.example.multiplex.util.ExcelUtil2;
+import com.sun.org.apache.bcel.internal.ExceptionConst;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.compress.compressors.FileNameUtil;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.aspectj.util.FileUtil;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -22,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -29,18 +37,20 @@ public class BoardService {
     private final BoardPictureRepository boardPictureRepository;
     private final BoardRepository boardRepository;
     private final FileFunc fileFunc;
+    private final ExcelUtil excelUtil;
+
 
     public Board addBoard(Board board, List<MultipartFile> files) throws Exception {
         Board saveBoard = boardRepository.save(board);
         // 파일을 저장하고 그 BoardPicture 에 대한 list 를 가지고 있는다
         List<BoardPicture> list = fileFunc.parseFileInfo(saveBoard.getBoardIdx(), files);
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             // TODO : 파일이 없을 땐 어떻게 해야할까.. 고민을 해보아야 할 것
         }
         // 파일에 대해 DB에 저장하고 가지고 있을 것
-        else{
+        else {
             List<BoardPicture> pictureBeans = new ArrayList<>();
-            for(BoardPicture boardPicture : list) {
+            for (BoardPicture boardPicture : list) {
                 pictureBeans.add(boardPictureRepository.save(boardPicture));
             }
         }
@@ -60,5 +70,28 @@ public class BoardService {
         response.setContentLength((int) file.length());        //--- response content length를 설정합니다.
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));    //--- inputstream 객체를 얻습니다.
         FileCopyUtils.copy(inputStream, response.getOutputStream());
+    }
+
+    public void excelUpload(MultipartFile file) {
+        String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+        ExcelUtil2 excelUtil = new ExcelUtil2(file,1,3);
+        excelUtil.init();
+
+        List<Map<String,Object>> list = excelUtil.getExcelData();
+        for (Map<String, Object> map : list) {
+            // 각 셀의 데이터를 VO에 set한다.
+            System.out.println(map.get("0").toString());
+            System.out.println(map.get("1").toString());
+            System.out.println(map.get("2").toString());
+        }
+
+
+//        List<Map<String,Object>> list = excelUtil.getListData(file,1,3);
+//        for (Map<String, Object> map : list) {
+//            // 각 셀의 데이터를 VO에 set한다.
+//            System.out.println(map.get("1").toString());
+//            System.out.println(map.get("2").toString());
+//            System.out.println(map.get("3").toString());
+//        }
     }
 }
