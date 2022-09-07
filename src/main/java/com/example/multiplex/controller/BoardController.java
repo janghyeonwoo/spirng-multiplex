@@ -5,6 +5,10 @@ import com.example.multiplex.entity.Board;
 import com.example.multiplex.func.FileFunc;
 import com.example.multiplex.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -48,9 +52,13 @@ public class BoardController {
             boardService.fileDown(response,boardIdx);
 	}
 
-	@Operation(description = "hhhh")
+	@Operation(summary = "로그인 메서드", description = "로그인 메서드입니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ReqDto.class))),
+        @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ReqDto.class)))
+    })
 	@GetMapping("list")
-    public void list(Pageable pageable){
+    public void list(Pageable pageable, @RequestBody ReqDto reqDto){
         System.out.println("==================");
         System.out.println(pageable);
         System.out.println(pageable.getPageSize());

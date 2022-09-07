@@ -1,7 +1,6 @@
 package com.example.multiplex.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,14 +8,15 @@ import java.util.List;
 
 @Getter
 @Setter
-@ApiModel
+@Schema
 public class Page {
-    @ApiModelProperty(value = "페이지 번호(0..N)")
+    @Schema(description = "페이지 번호(0..N)")
     private Integer page;
 
-    @ApiModelProperty(value = "페이지 크기", allowableValues="range[0, 100]")
+    @Schema(description = "페이지 크기")
+
     private Integer size;
 
-    @ApiModelProperty(value = "정렬(사용법: 컬럼명,ASC|DESC)")
+    @Schema(description = "정렬(사용법: 컬럼명,ASC|DESC)")
     private List<String> sort;
 }
