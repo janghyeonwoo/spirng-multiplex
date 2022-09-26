@@ -17,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -32,6 +35,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
+    /*
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeRequests()
+                .anyRequest().permitAll()
+                .and()
+                .addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.logout()
+                .logoutSuccessUrl("/logout")
+                .logoutSuccessHandler(((request, response, authentication) -> {
+//                      try {
+//                          String na = "{'aa', : 'aa'}";
+//                        response.getWriter().write(na);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+                }))
+                .addLogoutHandler((request, response, authentication) -> {
+                    log.info("logout::::::::: start");
+                    HttpSession session = request.getSession();
+                    session.invalidate();
+                    String na = "{'aa', : 'aa'}";
+                    try {
+                        response.getWriter().write(na);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+     */
 
 
 
