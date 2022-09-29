@@ -35,3 +35,7 @@ cloud:
     stack:
       auto: false
 
+logging:
+  slack:
+    webhook-url: https://hooks.slack.com/services/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
+
