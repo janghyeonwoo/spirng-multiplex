@@ -34,3 +34,4 @@ cloud:
       bucket: pooney
     stack:
       auto: false
+
