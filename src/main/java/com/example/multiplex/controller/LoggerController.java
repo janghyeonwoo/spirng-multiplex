@@ -22,6 +22,7 @@ public class LoggerController {
         log.debug("debug level!!");
         log.trace("trace level!!");
         loggerService.callLog();
+        if(true) throw new RuntimeException("에러발생!!!!!!");
         return "logger test";
     }
 }

@@ -24,6 +24,8 @@ dependencies {
     implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.11'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'com.github.maricn:logback-slack-appender:1.4.0'
+    // webclient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
