@@ -1,5 +1,6 @@
 package com.example.multiplex.service;
 
+import com.example.multiplex.dto.BoardDto;
 import com.example.multiplex.entity.Board;
 import com.example.multiplex.entity.BoardPicture;
 import com.example.multiplex.func.FileFunc;
@@ -22,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -45,6 +48,20 @@ public class BoardService {
             }
         }
         return boardRepository.save(board);
+    }
+
+    public BoardDto getBoard(Integer boardIdx){
+        return boardRepository.findById(boardIdx).map(BoardDto::new).orElse(null);
+    }
+
+    public BoardDto createBoard(BoardDto reqBoard){
+        Board saveBoard  = reqBoard.toEntity();
+        boardRepository.save(saveBoard);
+        return new BoardDto(saveBoard);
+    }
+
+    public List<BoardDto> getAll(){
+        return boardRepository.findAll().stream().map(BoardDto::new).collect(Collectors.toList());
     }
 
 

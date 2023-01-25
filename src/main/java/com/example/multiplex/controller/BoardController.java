@@ -1,5 +1,7 @@
 package com.example.multiplex.controller;
 
+import com.amazonaws.Response;
+import com.example.multiplex.dto.BoardDto;
 import com.example.multiplex.entity.Board;
 import com.example.multiplex.func.FileFunc;
 import com.example.multiplex.service.BoardService;
@@ -15,7 +17,7 @@ import java.net.URI;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("board")
+@RequestMapping("/board")
 @RestController
 public class BoardController {
 
@@ -35,6 +37,22 @@ public class BoardController {
 
         URI uriLocation = new URI("/board/" + board.getBoardIdx());
         return ResponseEntity.created(uriLocation).body("{}");
+    }
+
+    @GetMapping("/{boardIdx}")
+    public ResponseEntity<?> getBoard(@PathVariable("boardIdx") Integer boardIdx){
+        return ResponseEntity.ok(boardService.getBoard(boardIdx));
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createBoard(@RequestBody BoardDto reqBoard){
+        return ResponseEntity.ok(boardService.createBoard(reqBoard));
+    }
+
+
+    @GetMapping
+    public ResponseEntity<?> getAll(){
+        return ResponseEntity.ok(boardService.getAll());
     }
 
 
