@@ -45,19 +45,19 @@ public class RedisUtils {
     }
 
 
-    public Set<Object> getZsetDataLimit(final String id, final Long size) throws JsonProcessingException {
+    public Set<Object> getZsetDataLimit(final String id, final Long limit) throws JsonProcessingException {
 //        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return getZsetData(id,0L, size);
+        return getZsetData(id,0L, limit);
     }
 
     public Set<Object> getZsetDataAll(final String id) throws JsonProcessingException {
         return getZsetData(id,0L,-1L);
     }
 
-    private Set<Object> getZsetData(final String id, final Long start, final Long size){
+    private Set<Object> getZsetData(final String id, final Long start, final Long limit){
         return redisTemplate
                 .opsForZSet()
-                .range(id,start, size);
+                .range(id,start,limit);
     }
 
     /**
