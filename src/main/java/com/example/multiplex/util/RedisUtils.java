@@ -60,6 +60,16 @@ public class RedisUtils {
                 .range(id,start, size);
     }
 
+    /**
+     * {@link} https://redis.io/commands/zrangebyscore/
+     *  ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
+     *  :) zrange MEMBERSORTED 90 100 BYSCORE LIMIT 0 10 WITHSCORES
+     * @param id
+     * @return
+     * @throws JsonProcessingException
+     *
+     *
+     */
     public List<RedisDto> getZsetDataAllWithScores(final String id) throws JsonProcessingException {
         return Objects.requireNonNull(
                 redisTemplate.opsForZSet().rangeByScoreWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE,0,-1))
@@ -67,6 +77,7 @@ public class RedisUtils {
                 .map(i -> new RedisDto(String.valueOf(i.getValue()),String.valueOf(i.getScore())))
                 .collect(Collectors.toList());
     }
+
 
 
     public Long getZsetDataWithRank(final String id, final Object data) throws JsonProcessingException {
