@@ -1,7 +1,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
@@ -20,8 +20,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
     host: localhost
-    password: 123456
+#    password: 123456
     port: 6379
+
 
 
 

@@ -1,6 +1,7 @@
 package com.example.multiplex.controller;
 
 import com.example.multiplex.dto.MemberDto;
+import com.example.multiplex.dto.RedisDto;
 import com.example.multiplex.entity.Member;
 import com.example.multiplex.service.MemberService;
 import org.hibernate.annotations.Cache;
@@ -30,12 +31,9 @@ public class RedisController {
     }
 
     @PostMapping(value = "/setRedisStringValue")
-    public void setRedisStringValue(String key, String value) {
+    public void setRedisStringValue(@RequestBody RedisDto redisDto) {
         ValueOperations<String, String> stringValueOperations = stringRedisTemplate.opsForValue();
-        stringValueOperations.set(key, value);
-        System.out.println("Redis key : " + key);
-        System.out.println("Redis value : " + stringValueOperations.get(key));
-
+        stringValueOperations.set(redisDto.getKey(),redisDto.getValue());
     }
 
     @GetMapping("/getSessionId")

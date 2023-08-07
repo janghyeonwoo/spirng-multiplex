@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Setter
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @RedisHash("member")
@@ -17,4 +18,5 @@ public class MemberDto implements Serializable {
     private String id;
     private String name;
     private int age;
+
 }

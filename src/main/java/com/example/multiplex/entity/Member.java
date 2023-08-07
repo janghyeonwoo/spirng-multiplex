@@ -19,12 +19,11 @@ public class Member {
     private String name;
     private int age;
 
-    public MemberDto getMemberDto(){
+    public MemberDto getMemberDto() {
         return MemberDto.builder()
                 .id(this.id)
                 .name(this.name)
                 .age(this.age)
                 .build();
     }
-
 }
