@@ -14,7 +14,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class RedisControllerTest2 {
         findMemberList.forEach(i -> {
             try {
                 MemberDto memberDto = i.getMemberDto();
-                redisUtils.setListData(REDIS_MEMBER_LIST_KEY, memberDto);
+                redisUtils.setDataOfList(REDIS_MEMBER_LIST_KEY, memberDto);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -106,9 +105,10 @@ public class RedisControllerTest2 {
     @DisplayName("Zset를 Score와 함께 조회")
     @Test
     void readZsetDataWithScoresFromRedis() throws JsonProcessingException {
-        List<RedisDto> redisDtos = redisUtils.getZsetDataWithScores(REDIS_MEMBER_SORTED_SET_KEY);
+        List<RedisDto> redisDtos = redisUtils.getZsetDataAllWithScores(REDIS_MEMBER_SORTED_SET_KEY);
         System.out.println(redisDtos);
     }
+
 
     @DisplayName("Zset에서 RANK 조회")
     @Test
@@ -117,6 +117,20 @@ public class RedisControllerTest2 {
         MemberDto memberDto = findMemberList.get(1).getMemberDto();
         Long rank = redisUtils.getZsetDataWithRank(REDIS_MEMBER_SORTED_SET_KEY, memberDto.getId());
         System.out.println("MEMBER ID : " + memberDto.getId() + "RANK : " + rank);
+    }
+
+    @DisplayName("Zset에서 모든 목록 조회")
+    @Test
+    void readZsetDataAll() throws JsonProcessingException {
+        Set<Object> zsetDataAll = redisUtils.getZsetDataAll(REDIS_MEMBER_SORTED_SET_KEY);
+        zsetDataAll.forEach(System.out::println);
+    }
+
+    @DisplayName("Zset에서 리밋 조회")
+    @Test
+    void readZsetDataLimit() throws JsonProcessingException {
+        Set<Object> zsetDataLimit = redisUtils.getZsetDataLimit(REDIS_MEMBER_SORTED_SET_KEY,10L);
+        zsetDataLimit.forEach(System.out::println);
     }
 
 

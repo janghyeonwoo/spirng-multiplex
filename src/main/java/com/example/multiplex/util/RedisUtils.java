@@ -31,7 +31,7 @@ public class RedisUtils {
                 .set(id, objectMapper.writeValueAsString(object));
     }
 
-    public <T> void setListData(String id, T object) throws JsonProcessingException {
+    public <T> void setDataOfList(String id, T object) throws JsonProcessingException {
         redisTemplate
                 .opsForList()
                 .rightPush(id, objectMapper.writeValueAsString(object));
@@ -45,38 +45,37 @@ public class RedisUtils {
     }
 
 
-    public Set<Object> getZsetData(final String id, final Long size) throws JsonProcessingException {
-        final Long len = size != null ? size : Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return redisTemplate
-                .opsForZSet()
-                .range(id,0, len);
+    public Set<Object> getZsetDataLimit(final String id, final Long size) throws JsonProcessingException {
+//        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
+        return getZsetData(id,0L, size);
     }
 
-    public Set<Object> getZsetData(final String id) throws JsonProcessingException {
-        final Long len = Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return redisTemplate
-                .opsForZSet()
-                .range(id,0, len);
+    public Set<Object> getZsetDataAll(final String id) throws JsonProcessingException {
+        return getZsetData(id,0L,-1L);
     }
 
-    public List<RedisDto> getZsetDataWithScores(final String id) throws JsonProcessingException {
-        final Long len = Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return Objects.requireNonNull(redisTemplate
+    private Set<Object> getZsetData(final String id, final Long start, final Long size){
+        return redisTemplate
                 .opsForZSet()
-                .rangeByScoreWithScores(id, 0.0, len.doubleValue()))
+                .range(id,start, size);
+    }
+
+    public List<RedisDto> getZsetDataAllWithScores(final String id) throws JsonProcessingException {
+        return Objects.requireNonNull(
+                redisTemplate.opsForZSet().rangeByScoreWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE,0,-1))
                 .stream()
                 .map(i -> new RedisDto(String.valueOf(i.getValue()),String.valueOf(i.getScore())))
                 .collect(Collectors.toList());
     }
 
 
-    public Long getZsetDataWithRank(final String id, Object data) throws JsonProcessingException {
+    public Long getZsetDataWithRank(final String id, final Object data) throws JsonProcessingException {
         return redisTemplate
                 .opsForZSet()
                 .rank(id,data);
     }
 
-    public <T> List<T> getListData(String id, Class<T> classType) {
+    public <T> List<T> getListData(final String id, final Class<T> classType) {
         List<Object> opsList = redisTemplate.opsForList().range(id, 0, -1);
 
         assert opsList != null;
@@ -90,7 +89,7 @@ public class RedisUtils {
     }
 
 
-    public <T> T getRedisValue(String key, Class<T> classType) throws JsonProcessingException {
+    public <T> T getRedisValue(final String key, final Class<T> classType) throws JsonProcessingException {
         return objectMapper.readValue((String) redisTemplate.opsForValue().get(key), classType);
     }
 
