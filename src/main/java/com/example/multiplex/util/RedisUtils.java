@@ -31,33 +31,53 @@ public class RedisUtils {
                 .set(id, objectMapper.writeValueAsString(object));
     }
 
+    /**
+     * List 데이터에 값 넣기
+     * @param id
+     * @param object
+     * @param <T>
+     * @throws JsonProcessingException
+     */
     public <T> void setDataOfList(String id, T object) throws JsonProcessingException {
         redisTemplate
                 .opsForList()
                 .rightPush(id, objectMapper.writeValueAsString(object));
     }
 
-
-    public <T> void setZsetData(String id, T object, double score) throws JsonProcessingException {
+    /**
+     *
+     * Zset에 데이터 넣기
+     * Zset : 정렬 가능한 자료구조
+     * @param id
+     * @param object
+     * @param score
+     * @param <T>
+     * @throws JsonProcessingException
+     */
+    public <T> void setZsetData(String id, T object, double score) {
         redisTemplate
                 .opsForZSet()
                 .add(id, object, score);
     }
 
 
-    public Set<Object> getZsetDataLimit(final String id, final Long limit) throws JsonProcessingException {
+    public Set<Object> getZsetDataLimit(final String id, final Long end) {
 //        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return getZsetData(id,0L, limit);
+        return getZsetData(id,0L, end);
     }
 
-    public Set<Object> getZsetDataAll(final String id) throws JsonProcessingException {
+    public Set<Object> getZsetDataPaging(final String id, final long start, final long end) {
+        return getZsetData(id,start,end);
+    }
+
+    public Set<Object> getZsetDataAll(final String id) {
         return getZsetData(id,0L,-1L);
     }
 
-    private Set<Object> getZsetData(final String id, final Long start, final Long limit){
+    private Set<Object> getZsetData(final String id, final Long start, final Long end){
         return redisTemplate
                 .opsForZSet()
-                .range(id,start,limit);
+                .range(id,start,end);
     }
 
     /**
@@ -86,8 +106,39 @@ public class RedisUtils {
                 .rank(id,data);
     }
 
-    public <T> List<T> getListData(final String id, final Class<T> classType) {
-        List<Object> opsList = redisTemplate.opsForList().range(id, 0, -1);
+
+    /**
+     * List 데이터를 페이징하여 받기
+     *
+     * @param id 키
+     * @param classType 리턴 받을 타입
+     * @param start 시작 index
+     * @param end 끝 index
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getListDataPaging(final String id, final Class<T> classType, long start, long end) {
+        return getListData(id,classType,start,end);
+    }
+
+    /**
+     *
+     * List 데이터 전체 받기
+     * @param id 키
+     * @param classType 리턴 받을 타입
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getListDataAll(final String id, final Class<T> classType) {
+        return getListData(id,classType,0,-1);
+    }
+
+    public <T> List<T> getListDataLimit(final String id, final Class<T> classType, final long end) {
+        return getListData(id,classType,0,end);
+    }
+
+    private  <T> List<T> getListData(final String id, final Class<T> classType, final long start, final long end) {
+        List<Object> opsList = redisTemplate.opsForList().range(id, start, end);
 
         assert opsList != null;
         return opsList.stream().map(i -> {
