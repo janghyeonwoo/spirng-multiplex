@@ -91,8 +91,12 @@ public class RedisUtils {
 
 
     public Boolean setSetExpire(final String id, final String value){
+        return setSetExpireTime(id, value,60, TimeUnit.SECONDS);
+    }
+
+    public Boolean setSetExpireTime(final String id, final String value, long time, TimeUnit timeUnit){
         return redisTemplate.boundValueOps(id)
-                .setIfAbsent(value,3000000, TimeUnit.MILLISECONDS);
+                .setIfAbsent(value,time, timeUnit);
     }
 
 
