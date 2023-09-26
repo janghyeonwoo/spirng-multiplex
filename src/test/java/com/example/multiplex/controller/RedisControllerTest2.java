@@ -25,6 +25,7 @@ public class RedisControllerTest2 {
 
     private final String REDIS_MEMBER_LIST_KEY = "MEMBERLIST";
     private final String REDIS_MEMBER_SORTED_SET_KEY = "MEMBERSORTED";
+//    private final String REDIS_MEMBER_SET_EXPIRE_KEY = "MEMBER-EXPIRE";
 
 
     @Autowired
@@ -89,6 +90,22 @@ public class RedisControllerTest2 {
 
         }
     }
+
+    /**
+     *
+     * TTL 적용
+     */
+    @Test
+    void setSetExpire() throws JsonProcessingException {
+        List<Member> findMemberList = memberRepository.findAll();
+        Member findMember = findMemberList.get(0);
+        boolean check = redisUtils.setSetExpire(RedisKey.MEMBEREXPIRE.getKey(findMember.getId()),"OK");
+        System.out.println("=============== check ================");
+        System.out.println("Key : " + RedisKey.MEMBEREXPIRE.getKey(findMember.getId()));
+        System.out.println("Member : " + findMember.getId());
+        System.out.println("response : " + check);
+    }
+
 
 
     //#####################################################################

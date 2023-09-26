@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -86,6 +87,15 @@ public class RedisUtils {
                 .opsForZSet()
                 .range(id, start, end);
     }
+
+
+
+    public Boolean setSetExpire(final String id, final String value){
+        return redisTemplate.boundValueOps(id)
+                .setIfAbsent(value,3000000, TimeUnit.MILLISECONDS);
+    }
+
+
 
     /**
      * {@link} https://redis.io/commands/zrangebyscore/
