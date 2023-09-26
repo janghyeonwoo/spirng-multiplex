@@ -94,6 +94,14 @@ public class RedisUtils {
         return setSetExpireTime(id, value,60, TimeUnit.SECONDS);
     }
 
+    /**
+     * @link {https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/BoundValueOperations.html#setIfAbsent-V-}
+     * @param id  키 
+     * @param value 값
+     * @param time EXPIRE 시간 
+     * @param timeUnit EXPIRE 단위
+     * @return
+     */
     public Boolean setSetExpireTime(final String id, final String value, long time, TimeUnit timeUnit){
         return redisTemplate.boundValueOps(id)
                 .setIfAbsent(value,time, timeUnit);
