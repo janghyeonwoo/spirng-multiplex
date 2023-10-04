@@ -61,7 +61,7 @@ public class RedisControllerTest2 {
         findMemberList.forEach(i -> {
             try {
                 MemberDto memberDto = i.getMemberDto();
-                redisUtils.setJsonData(RedisKey.MEMBER.getKey(memberDto.getId()), memberDto);
+                redisUtils.setJsonValue(RedisKey.MEMBER.getKey(memberDto.getId()), memberDto);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -75,18 +75,20 @@ public class RedisControllerTest2 {
         findMemberList.forEach(i -> {
             try {
                 MemberDto memberDto = i.getMemberDto();
-                redisUtils.setDataOfList(REDIS_MEMBER_LIST_KEY, memberDto);
+                redisUtils.setList(REDIS_MEMBER_LIST_KEY, memberDto,3000);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         });
     }
 
+
+
     @Test
     void setZsetDataToRedis() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         for (Member dto : findMemberList) {
-            redisUtils.setZsetData(REDIS_MEMBER_SORTED_SET_KEY, dto.getMemberDto().getId(), dto.getAge());
+            redisUtils.setZSetValue(REDIS_MEMBER_SORTED_SET_KEY, dto.getMemberDto().getId(), dto.getAge());
 
         }
     }
@@ -114,7 +116,7 @@ public class RedisControllerTest2 {
     @DisplayName("List 데이터 조회")
     @Test
     void readMemberListFromRedis() {
-        List<MemberDto> memberDtoList = redisUtils.getListDataAll(REDIS_MEMBER_LIST_KEY, MemberDto.class);
+        List<MemberDto> memberDtoList = redisUtils.getListAll(REDIS_MEMBER_LIST_KEY, MemberDto.class);
         System.out.println(memberDtoList);
     }
 
@@ -122,7 +124,7 @@ public class RedisControllerTest2 {
     @DisplayName("Zset를 Score와 함께 조회")
     @Test
     void readZsetDataWithScoresFromRedis() {
-        List<RedisDto> redisDtos = redisUtils.getZsetRedisDtoAllWithScores(REDIS_MEMBER_SORTED_SET_KEY);
+        List<RedisDto> redisDtos = redisUtils.getZSetWithScores(REDIS_MEMBER_SORTED_SET_KEY);
         System.out.println(redisDtos);
     }
 
@@ -130,7 +132,7 @@ public class RedisControllerTest2 {
     @DisplayName("Zset Paging 조회")
     @Test
     void readZsetRedisDtoPagingWithScores() {
-        List<RedisDto> redisDtos = redisUtils.getZsetRedisDtoPagingWithScores(REDIS_MEMBER_SORTED_SET_KEY, 10, 3);
+        List<RedisDto> redisDtos = redisUtils.getZSetWithScores(REDIS_MEMBER_SORTED_SET_KEY, 10, 3);
         System.out.println("[RedisDto] size : " + redisDtos.size() +  redisDtos);
     }
 
@@ -140,21 +142,21 @@ public class RedisControllerTest2 {
     void readZsetDataWithRank() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         MemberDto memberDto = findMemberList.get(1).getMemberDto();
-        Long rank = redisUtils.getZsetDataWithRank(REDIS_MEMBER_SORTED_SET_KEY, memberDto.getId());
+        Long rank = redisUtils.getZSetWithRank(REDIS_MEMBER_SORTED_SET_KEY, memberDto.getId());
         System.out.println("MEMBER ID : " + memberDto.getId() + "RANK : " + rank);
     }
 
     @DisplayName("Zset에서 모든 목록 조회")
     @Test
     void readZsetDataAll() {
-        Set<Object> zsetDataAll = redisUtils.getZsetDataAll(REDIS_MEMBER_SORTED_SET_KEY);
+        Set<Object> zsetDataAll = redisUtils.getZSetValueAll(REDIS_MEMBER_SORTED_SET_KEY);
         zsetDataAll.forEach(System.out::println);
     }
 
     @DisplayName("Zset에서 리밋 조회")
     @Test
     void readZsetDataLimit() {
-        Set<Object> zsetDataLimit = redisUtils.getZsetDataLimit(REDIS_MEMBER_SORTED_SET_KEY, 10L);
+        Set<Object> zsetDataLimit = redisUtils.getZSetValueLimit(REDIS_MEMBER_SORTED_SET_KEY, 10L);
         zsetDataLimit.forEach(System.out::println);
     }
 

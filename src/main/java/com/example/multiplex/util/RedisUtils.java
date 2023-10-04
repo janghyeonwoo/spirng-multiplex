@@ -1,23 +1,21 @@
 package com.example.multiplex.util;
 
-import com.example.multiplex.dto.MemberDto;
 import com.example.multiplex.dto.RedisDto;
-import com.example.multiplex.enums.RedisKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class RedisUtils {
@@ -28,64 +26,62 @@ public class RedisUtils {
     private final long endIndex = -1;
 
 
-    public void setData(String key, String value, Long expiredTime) {
+    public void setValue(String key, String value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
     }
 
-    public <T> void setJsonData(String id, T object) throws JsonProcessingException {
+    public boolean containsKey(String key){
+        try {
+            return redisTemplate.hasKey(key);
+        } catch (Exception e){
+            log.error("Redis Error...");
+        }
+        return false;
+    }
+
+    public <T> void setJsonValue(String key, T value) throws JsonProcessingException {
         redisTemplate
                 .opsForValue()
-                .set(id, objectMapper.writeValueAsString(object));
+                .set(key, objectMapper.writeValueAsString(value));
     }
 
     /**
      * List 데이터에 값 넣기
      *
-     * @param id
-     * @param object
+     * @param key
+     * @param value
      * @param <T>
      * @throws JsonProcessingException
      */
-    public <T> void setDataOfList(String id, T object) throws JsonProcessingException {
+    public <T> void setList(String key, T value) throws JsonProcessingException {
+        setList(key,value,-1);
+    }
+
+
+    public <T> void setList(String key, T value, long time) throws JsonProcessingException {
         redisTemplate
                 .opsForList()
-                .rightPush(id, objectMapper.writeValueAsString(object));
+                .rightPush(key, objectMapper.writeValueAsString(value));
+
+        if(time > 0){
+            redisTemplate.expire(key,time,TimeUnit.SECONDS);
+        }
     }
 
     /**
      * Zset에 데이터 넣기
      * Zset : 정렬 가능한 자료구조
      *
-     * @param id
-     * @param object
+     * @param key
+     * @param value
      * @param score
      * @param <T>
      * @throws JsonProcessingException
      */
-    public <T> void setZsetData(String id, T object, double score) {
+    public <T> void setZSetValue(String key, T value, double score) {
         redisTemplate
                 .opsForZSet()
-                .add(id, object, score);
-    }
-
-
-    public Set<Object> getZsetDataLimit(final String id, final Long end) {
-//        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
-        return getZsetData(id, startIndex, end);
-    }
-
-    public Set<Object> getZsetDataPaging(final String id, final long start, final long end) {
-        return getZsetData(id, start, end);
-    }
-
-    public Set<Object> getZsetDataAll(final String id) {
-        return getZsetData(id, startIndex, endIndex);
-    }
-
-    private Set<Object> getZsetData(final String id, final Long start, final Long end) {
-        return redisTemplate
-                .opsForZSet()
-                .range(id, start, end);
+                .add(key, value, score);
     }
 
 
@@ -96,9 +92,9 @@ public class RedisUtils {
 
     /**
      * @link {https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/BoundValueOperations.html#setIfAbsent-V-}
-     * @param id  키 
+     * @param id  키
      * @param value 값
-     * @param time EXPIRE 시간 
+     * @param time EXPIRE 시간
      * @param timeUnit EXPIRE 단위
      * @return
      */
@@ -119,19 +115,19 @@ public class RedisUtils {
      * @throws JsonProcessingException
      */
 
-    public List<RedisDto> getZsetRedisDtoAllWithScores(final String id) {
-        return toRedisDtoList(getZsetDataWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, startIndex, endIndex));
+    public List<RedisDto> getZSetWithScores(final String id) {
+        return toRedisDtoList(getZSetWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, startIndex, endIndex));
     }
 
-    public List<RedisDto> getZsetRedisDtoPagingWithScores(final String id, final long start, final long end) {
-        return toRedisDtoList(getZsetDataWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, start, end));
+    public List<RedisDto> getZSetWithScores(final String id, final long start, final long end) {
+        return toRedisDtoList(getZSetWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, start, end));
     }
 
-    public List<RedisDto> getZsetRedisDtoLimitWithScores(final String id, final long end) {
-        return toRedisDtoList(getZsetDataWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, startIndex, end));
+    public List<RedisDto> getZSetWithScores(final String id, final long end) {
+        return toRedisDtoList(getZSetWithScores(id, Double.MIN_VALUE, Double.MAX_VALUE, startIndex, end));
     }
 
-    private Set<ZSetOperations.TypedTuple<Object>> getZsetDataWithScores(final String id, double min, double max, final long start, final long end) {
+    public Set<ZSetOperations.TypedTuple<Object>> getZSetWithScores(final String id, double min, double max, final long start, final long end) {
         return redisTemplate.opsForZSet().rangeByScoreWithScores(id, min, max, start, end);
     }
 
@@ -143,6 +139,28 @@ public class RedisUtils {
     }
 
 
+
+
+    public Set<Object> getZSetValueLimit(final String id, final Long end) {
+//        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
+        return getZSetValue(id, startIndex, end);
+    }
+
+    public Set<Object> getZSetValuePaging(final String id, final long start, final long end) {
+        return getZSetValue(id, start, end);
+    }
+
+    public Set<Object> getZSetValueAll(final String id) {
+        return getZSetValue(id, startIndex, endIndex);
+    }
+
+    public Set<Object> getZSetValue(final String id, final Long start, final Long end) {
+        return redisTemplate
+                .opsForZSet()
+                .range(id, start, end);
+    }
+
+
     /**
      * 특정 데이터 랭킹 조회
      *
@@ -151,26 +169,12 @@ public class RedisUtils {
      * @return
      * @throws JsonProcessingException
      */
-    public Long getZsetDataWithRank(final String id, final Object data) throws JsonProcessingException {
+    public Long getZSetWithRank(final String id, final Object data) throws JsonProcessingException {
         return redisTemplate
                 .opsForZSet()
                 .rank(id, data);
     }
 
-
-    /**
-     * List 데이터를 페이징하여 받기
-     *
-     * @param id        키
-     * @param classType 리턴 받을 타입
-     * @param start     시작 index
-     * @param end       끝 index
-     * @param <T>
-     * @return
-     */
-    public <T> List<T> getListDataPaging(final String id, final Class<T> classType, long start, long end) {
-        return getListData(id, classType, start, end);
-    }
 
     /**
      * List 데이터 전체 받기
@@ -180,15 +184,32 @@ public class RedisUtils {
      * @param <T>
      * @return
      */
-    public <T> List<T> getListDataAll(final String id, final Class<T> classType) {
-        return getListData(id, classType, 0, -1);
+    public <T> List<T> getListAll(final String id, final Class<T> classType) {
+        return getList(id, classType, 0, -1);
     }
 
-    public <T> List<T> getListDataLimit(final String id, final Class<T> classType, final long end) {
-        return getListData(id, classType, 0, end);
+    /**
+     * List Limit
+     * @param id
+     * @param classType
+     * @param end
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getListLimit(final String id, final Class<T> classType, final long end) {
+        return getList(id, classType, 0, end);
     }
 
-    private <T> List<T> getListData(final String id, final Class<T> classType, final long start, final long end) {
+    /**
+     * List 조회
+     * @param id
+     * @param classType
+     * @param start
+     * @param end
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getList(final String id, final Class<T> classType, final long start, final long end) {
         List<Object> opsList = redisTemplate.opsForList().range(id, start, end);
 
         assert opsList != null;
