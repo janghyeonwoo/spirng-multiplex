@@ -25,11 +25,21 @@ public class RedisUtils {
     private final long startIndex = 0;
     private final long endIndex = -1;
 
-
+    /**
+     * Set에 넣기
+     * @param key
+     * @param value
+     * @param expiredTime
+     */
     public void setValue(String key, String value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 해당 키 존재 여부 확인
+     * @param key
+     * @return
+     */
     public boolean containsKey(String key){
         try {
             return redisTemplate.hasKey(key);
@@ -39,6 +49,13 @@ public class RedisUtils {
         return false;
     }
 
+    /**
+     * Set json value 넣기
+     * @param key
+     * @param value
+     * @param <T>
+     * @throws JsonProcessingException
+     */
     public <T> void setJsonValue(String key, T value) throws JsonProcessingException {
         redisTemplate
                 .opsForValue()
@@ -53,19 +70,26 @@ public class RedisUtils {
      * @param <T>
      * @throws JsonProcessingException
      */
-    public <T> void setList(String key, T value) throws JsonProcessingException {
-        setList(key,value,-1);
+    public <T> boolean setList(String key, T value) {
+        return setList(key,value,-1);
     }
 
 
-    public <T> void setList(String key, T value, long time) throws JsonProcessingException {
-        redisTemplate
-                .opsForList()
-                .rightPush(key, objectMapper.writeValueAsString(value));
+    public <T> boolean setList(String key, T value, long time) {
+        try {
+            redisTemplate
+                    .opsForList()
+                    .rightPush(key, objectMapper.writeValueAsString(value));
 
-        if(time > 0){
-            redisTemplate.expire(key,time,TimeUnit.SECONDS);
+
+            if (time > 0) {
+                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("Redis setList Error");
         }
+        return false;
     }
 
     /**
