@@ -109,12 +109,18 @@ public class RedisUtils {
     }
 
 
-
+    /**
+     * 만료 시간 설정
+     * @param id
+     * @param value
+     * @return
+     */
     public Boolean setSetExpire(final String id, final String value){
         return setSetExpireTime(id, value,60, TimeUnit.SECONDS);
     }
 
     /**
+     * 키를 고정으로 하고 사용할때 유용할 듯 한데 필요없을 듯하다.
      * @link {https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/BoundValueOperations.html#setIfAbsent-V-}
      * @param id  키
      * @param value 값
@@ -130,6 +136,8 @@ public class RedisUtils {
 
 
     /**
+     *
+     * 스코어와 함께 조회
      * {@link} https://redis.io/commands/zrangebyscore/
      * ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]
      * :) zrange MEMBERSORTED 90 100 BYSCORE LIMIT 0 10 WITHSCORES
@@ -155,7 +163,13 @@ public class RedisUtils {
         return redisTemplate.opsForZSet().rangeByScoreWithScores(id, min, max, start, end);
     }
 
-    private List<RedisDto> toRedisDtoList(Set<ZSetOperations.TypedTuple<Object>> typedTuples) {
+
+    /**
+     * Redis 데이터를 RedisDto로 변경
+     * @param typedTuples
+     * @return
+     */
+    public List<RedisDto> toRedisDtoList(Set<ZSetOperations.TypedTuple<Object>> typedTuples) {
         return Objects.requireNonNull(typedTuples)
                 .stream()
                 .map(i -> new RedisDto(String.valueOf(i.getValue()), String.valueOf(i.getScore())))
@@ -163,21 +177,44 @@ public class RedisUtils {
     }
 
 
-
-
+    /**
+     * Set limit 조회
+     * @param id
+     * @param end
+     * @return
+     */
     public Set<Object> getZSetValueLimit(final String id, final Long end) {
 //        Optional.ofNullable(redisTemplate.opsForZSet().size(id)).orElse(-1L);
         return getZSetValue(id, startIndex, end);
     }
 
+    /**
+     * Set 구간 조회
+     * @param id
+     * @param start
+     * @param end
+     * @return
+     */
     public Set<Object> getZSetValuePaging(final String id, final long start, final long end) {
         return getZSetValue(id, start, end);
     }
 
+    /**
+     * Set 전체 조회
+     * @param id
+     * @return
+     */
     public Set<Object> getZSetValueAll(final String id) {
         return getZSetValue(id, startIndex, endIndex);
     }
 
+    /**
+     * Set 조회
+     * @param id
+     * @param start
+     * @param end
+     * @return
+     */
     public Set<Object> getZSetValue(final String id, final Long start, final Long end) {
         return redisTemplate
                 .opsForZSet()
@@ -209,7 +246,7 @@ public class RedisUtils {
      * @return
      */
     public <T> List<T> getListAll(final String id, final Class<T> classType) {
-        return getList(id, classType, 0, -1);
+        return getList(id,0,-1,classType);
     }
 
     /**
@@ -221,7 +258,7 @@ public class RedisUtils {
      * @return
      */
     public <T> List<T> getListLimit(final String id, final Class<T> classType, final long end) {
-        return getList(id, classType, 0, end);
+        return getList(id,0, end, classType);
     }
 
     /**
@@ -233,8 +270,8 @@ public class RedisUtils {
      * @param <T>
      * @return
      */
-    public <T> List<T> getList(final String id, final Class<T> classType, final long start, final long end) {
-        List<Object> opsList = redisTemplate.opsForList().range(id, start, end);
+    public <T> List<T> getList(final String id, final long start, final long end, final Class<T> classType) {
+        List<Object> opsList = getList(id, start, end);
 
         assert opsList != null;
         return opsList.stream().map(i -> {
@@ -246,9 +283,18 @@ public class RedisUtils {
         }).collect(Collectors.toList());
     }
 
+    public List<Object> getList(final String id, final long start, final long end){
+        return redisTemplate.opsForList().range(id, start, end);
+    }
 
-    public <T> T getRedisValue(final String key, final Class<T> classType) throws JsonProcessingException {
-        return objectMapper.readValue((String) redisTemplate.opsForValue().get(key), classType);
+
+
+    public <T> T getValue(final String key, final Class<T> classType) throws JsonProcessingException {
+        return objectMapper.readValue((String) getValue(key), classType);
+    }
+
+    public Object getValue(final String key){
+        return redisTemplate.opsForValue().get(key);
     }
 
 

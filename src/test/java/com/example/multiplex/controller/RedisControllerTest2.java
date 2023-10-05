@@ -73,15 +73,10 @@ public class RedisControllerTest2 {
     void dbMemberListToRedis() {
         List<Member> findMemberList = memberRepository.findAll();
         findMemberList.forEach(i -> {
-            try {
-                MemberDto memberDto = i.getMemberDto();
-                redisUtils.setList(REDIS_MEMBER_LIST_KEY, memberDto,3000);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            MemberDto memberDto = i.getMemberDto();
+            redisUtils.setList(REDIS_MEMBER_LIST_KEY, memberDto, 3000);
         });
     }
-
 
 
     @Test
@@ -94,20 +89,18 @@ public class RedisControllerTest2 {
     }
 
     /**
-     *
      * TTL 적용
      */
     @Test
     void setSetExpire() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         Member findMember = findMemberList.get(0);
-        boolean check = redisUtils.setSetExpire(RedisKey.MEMBEREXPIRE.getKey(findMember.getId()),"OK");
+        boolean check = redisUtils.setSetExpire(RedisKey.MEMBEREXPIRE.getKey(findMember.getId()), "OK");
         System.out.println("=============== check ================");
         System.out.println("Key : " + RedisKey.MEMBEREXPIRE.getKey(findMember.getId()));
         System.out.println("Member : " + findMember.getId());
         System.out.println("response : " + check);
     }
-
 
 
     //#####################################################################
@@ -133,7 +126,7 @@ public class RedisControllerTest2 {
     @Test
     void readZsetRedisDtoPagingWithScores() {
         List<RedisDto> redisDtos = redisUtils.getZSetWithScores(REDIS_MEMBER_SORTED_SET_KEY, 10, 3);
-        System.out.println("[RedisDto] size : " + redisDtos.size() +  redisDtos);
+        System.out.println("[RedisDto] size : " + redisDtos.size() + redisDtos);
     }
 
 
@@ -166,7 +159,7 @@ public class RedisControllerTest2 {
     void readRedis() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         for (Member member : findMemberList) {
-            MemberDto dto = redisUtils.getRedisValue(RedisKey.MEMBER.getKey(member.getId()), MemberDto.class);
+            MemberDto dto = redisUtils.getValue(RedisKey.MEMBER.getKey(member.getId()), MemberDto.class);
         }
     }
 
