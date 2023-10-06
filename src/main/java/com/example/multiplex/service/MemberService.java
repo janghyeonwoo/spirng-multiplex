@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
+
 @RequiredArgsConstructor
 @Service
 public class MemberService {
@@ -18,6 +20,7 @@ public class MemberService {
                 .id(name)
                 .name(name)
                 .age(23)
+                .rgdt(YearMonth.now())
                 .build();
         memberRepository.save(member);
 //        memberRedisRepository.save(member.getMemberDto());

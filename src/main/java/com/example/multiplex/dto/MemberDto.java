@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 
 @Setter
 @Getter
@@ -18,5 +19,5 @@ public class MemberDto implements Serializable {
     private String id;
     private String name;
     private int age;
-
+    private String rgdt;
 }
