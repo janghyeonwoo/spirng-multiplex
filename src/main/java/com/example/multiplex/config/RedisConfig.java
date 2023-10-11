@@ -1,5 +1,6 @@
 package com.example.multiplex.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -40,9 +43,10 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
+        GenericJackson2JsonRedisSerializer GJ = new GenericJackson2JsonRedisSerializer(new ObjectMapper());
         redisTemplate.setConnectionFactory(redisConnectionFactory());
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setKeySerializer(GJ);
+        redisTemplate.setValueSerializer(GJ);
         //@Transaction를 통한 트랜잭션을 관리하기 위함
         redisTemplate.setEnableTransactionSupport(true);
         return redisTemplate;

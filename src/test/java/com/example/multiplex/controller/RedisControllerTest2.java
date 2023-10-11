@@ -58,6 +58,7 @@ public class RedisControllerTest2 {
     @Test
     void dbMemberToRedis() {
         List<Member> findMemberList = memberRepository.findAll();
+
         findMemberList.forEach(i -> {
             try {
                 MemberDto memberDto = i.getMemberDto();
@@ -86,6 +87,13 @@ public class RedisControllerTest2 {
             redisUtils.setZSetValue(REDIS_MEMBER_SORTED_SET_KEY, dto.getMemberDto().getId(), dto.getAge());
 
         }
+    }
+
+
+    @Test
+    void setSetDataToRedis() throws JsonProcessingException {
+        List<Member> findMemberList = memberRepository.findAll();
+        redisUtils.setValue("memberset", findMemberList.get(0),30000L);
     }
 
     /**

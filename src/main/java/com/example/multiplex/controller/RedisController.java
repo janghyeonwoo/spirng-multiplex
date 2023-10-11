@@ -60,4 +60,6 @@ public class RedisController {
         return memberService.updateMember(memberDto);
     }
 
+
+
 }

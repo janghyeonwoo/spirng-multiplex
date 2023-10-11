@@ -10,7 +10,6 @@ import java.time.YearMonth;
 @Setter
 @Getter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @RedisHash("member")

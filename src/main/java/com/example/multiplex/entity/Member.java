@@ -30,7 +30,7 @@ public class Member {
                 .id(this.id)
                 .name(this.name)
                 .age(this.age)
-                .rgdt(this.rgdt.format(DateTimeFormatter.ofPattern("yyyy-MM")))
+//                .rgdt(this.rgdt.format(DateTimeFormatter.ofPattern("yyyy-MM")))
                 .build();
     }
 }

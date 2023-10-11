@@ -31,7 +31,7 @@ public class RedisUtils {
      * @param value
      * @param expiredTime
      */
-    public void setValue(String key, String value, Long expiredTime) {
+    public void setValue(String key, Object value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
     }
 
