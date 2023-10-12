@@ -1,12 +1,15 @@
 package com.example.multiplex.util;
 
+import com.example.multiplex.dto.MemberDto;
 import com.example.multiplex.dto.RedisDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -295,6 +298,18 @@ public class RedisUtils {
 
     public Object getValue(final String key){
         return redisTemplate.opsForValue().get(key);
+    }
+
+
+    public <T> void setBulkList(String key, List<T> list) {
+        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            RedisSerializer<String> keySerializer = redisTemplate.getStringSerializer();
+            RedisSerializer valueSerializer = redisTemplate.getValueSerializer();
+            for(T i : list){
+                connection.sAdd(keySerializer.serialize(key),valueSerializer.serialize(i));
+            }
+            return null;
+        });
     }
 
 

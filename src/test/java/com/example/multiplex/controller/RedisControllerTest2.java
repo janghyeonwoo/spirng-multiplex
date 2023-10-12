@@ -17,6 +17,7 @@ import org.springframework.test.annotation.Rollback;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @SpringBootTest
@@ -95,6 +96,17 @@ public class RedisControllerTest2 {
         List<Member> findMemberList = memberRepository.findAll();
         redisUtils.setValue("memberset", findMemberList.get(0),30000L);
     }
+
+    @Test
+    void setBulk() throws JsonProcessingException {
+        List<Member> findMemberList = memberRepository.findAll();
+        List<MemberDto> memberDtoList = findMemberList.stream().map(Member::getMemberDto).collect(Collectors.toList());
+        redisUtils.setBulkList("bulk",memberDtoList);
+
+
+    }
+
+
 
     /**
      * TTL 적용
