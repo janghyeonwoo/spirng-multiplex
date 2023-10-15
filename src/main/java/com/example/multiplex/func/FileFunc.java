@@ -1,17 +1,14 @@
 package com.example.multiplex.func;
 
 import com.example.multiplex.entity.BoardPicture;
-import jdk.jfr.ContentType;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MimeType;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
