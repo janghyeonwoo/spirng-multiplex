@@ -63,11 +63,20 @@ public class RedisControllerTest2 {
         findMemberList.forEach(i -> {
             try {
                 MemberDto memberDto = i.getMemberDto();
-                redisUtils.setJsonValue(RedisKey.MEMBER.getKey(memberDto.getId()), memberDto);
+                redisUtils.setJsonValue(RedisKey.MEMBER.func.apply(memberDto.getId()), memberDto);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Test
+    void setRedis() {
+        for(int i = 0; i < 100000; i++){
+            String key = RedisKey.MEMBER.func.apply(String.valueOf(i));
+            MemberDto memberDto = MemberDto.builder().id("ID-" +i).build();
+            redisUtils.setValue(key,memberDto);
+        }
     }
 
 
@@ -115,9 +124,9 @@ public class RedisControllerTest2 {
     void setSetExpire() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         Member findMember = findMemberList.get(0);
-        boolean check = redisUtils.setSetExpire(RedisKey.MEMBEREXPIRE.getKey(findMember.getId()), "OK");
+        boolean check = redisUtils.setSetExpire(RedisKey.MEMBER_EXPRIE.func.apply(findMember.getId()), "OK");
         System.out.println("=============== check ================");
-        System.out.println("Key : " + RedisKey.MEMBEREXPIRE.getKey(findMember.getId()));
+        System.out.println("Key : " + RedisKey.MEMBER_EXPRIE.func.apply(findMember.getId()));
         System.out.println("Member : " + findMember.getId());
         System.out.println("response : " + check);
     }
@@ -179,8 +188,22 @@ public class RedisControllerTest2 {
     void readRedis() throws JsonProcessingException {
         List<Member> findMemberList = memberRepository.findAll();
         for (Member member : findMemberList) {
-            MemberDto dto = redisUtils.getValue(RedisKey.MEMBER.getKey(member.getId()), MemberDto.class);
+            MemberDto dto = redisUtils.getValue(RedisKey.MEMBER.func.apply(member.getId()), MemberDto.class);
         }
     }
 
+    @DisplayName("key 존재 여부 확인")
+    @Test
+    void readContainsKey() throws JsonProcessingException {
+        System.out.println("============ key contains ========== ");
+        System.out.println(redisUtils.containsKey("code1"));
+        System.out.println(redisUtils.containsKey("\"code1\""));
+        System.out.println("============ key contains ========== ");
+    }
+
+
+
+
 }
+
+

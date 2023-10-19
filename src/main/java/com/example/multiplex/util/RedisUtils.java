@@ -4,8 +4,10 @@ import com.example.multiplex.dto.MemberDto;
 import com.example.multiplex.dto.RedisDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.lettuce.core.RedisConnectionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -16,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,6 +39,11 @@ public class RedisUtils {
      */
     public void setValue(String key, Object value, Long expiredTime) {
         redisTemplate.opsForValue().set(key, value, expiredTime, TimeUnit.MILLISECONDS);
+    }
+
+
+    public void setValue(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
     }
 
     /**
@@ -134,6 +142,33 @@ public class RedisUtils {
     public Boolean setSetExpireTime(final String id, final String value, long time, TimeUnit timeUnit){
         return redisTemplate.boundValueOps(id)
                 .setIfAbsent(value,time, timeUnit);
+    }
+
+    /**
+     * Bulk Insert 수행
+     * @param key
+     * @param list
+     * @param <T>
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> void setBulkList(String key, List<T> list) {
+        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            RedisSerializer<String> keySerializer = redisTemplate.getStringSerializer();
+            RedisSerializer valueSerializer = redisTemplate.getValueSerializer();
+            for (T i : list) {
+                try {
+                    connection.listCommands().lPush(keySerializer.serialize(key), valueSerializer.serialize(new ObjectMapper().writeValueAsString(i)));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("setBulkList Error!!!");
+                };
+            }
+            return null;
+        });
+    }
+
+    public void setHash(String key, Map<String,Object> data){
+        redisTemplate.opsForHash()
+                .putAll(key,data);
     }
 
 
@@ -296,20 +331,37 @@ public class RedisUtils {
         return objectMapper.readValue((String) getValue(key), classType);
     }
 
-    public Object getValue(final String key){
-        return redisTemplate.opsForValue().get(key);
+    public <T> T getValue(final String key){
+        return (T) redisTemplate.opsForValue().get(key);
     }
 
 
-    public <T> void setBulkList(String key, List<T> list) {
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            RedisSerializer<String> keySerializer = redisTemplate.getStringSerializer();
-            RedisSerializer valueSerializer = redisTemplate.getValueSerializer();
-            for(T i : list){
-                connection.sAdd(keySerializer.serialize(key),valueSerializer.serialize(i));
+    /**
+     * @link {https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/HashOperations.html#entries(H)}
+     * @param key
+     * @return
+     */
+    public Map<String,Object> getHash(final String key){
+        HashOperations<String,String,Object> hop = redisTemplate.opsForHash();
+        return  hop.entries(key);
+    }
+
+
+    public <T> T getValueOrSave(final String key, Supplier<T> defaultValue , Class<T> clazz) throws JsonProcessingException {
+        T data = null;
+        try {
+            String jsonValue = getValue(key);
+            if (StringUtils.hasText(jsonValue)) {
+                data = objectMapper.readValue((String) getValue(key), clazz);
+            } else {
+                data = defaultValue.get();
+                setValue(key, objectMapper.writeValueAsString(data), 30000L);
             }
-            return null;
-        });
+        } catch (RedisConnectionException e){
+            log.error("Failed connection Redis Error : {}", e.getMessage());
+            data = defaultValue.get();
+        }
+        return data;
     }
 
 
