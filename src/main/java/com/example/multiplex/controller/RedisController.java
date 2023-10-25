@@ -1,26 +1,30 @@
 package com.example.multiplex.controller;
 
 import com.example.multiplex.dto.MemberDto;
+import com.example.multiplex.dto.MessageDto;
 import com.example.multiplex.dto.RedisDto;
 import com.example.multiplex.entity.Member;
 import com.example.multiplex.service.MemberService;
+import com.example.multiplex.service.RedisPubService;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
+@RequiredArgsConstructor
 @RestController
 public class RedisController {
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
-    @Autowired
-    private MemberService memberService;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final MemberService memberService;
+    private final RedisPubService redisPubService;
 
 
     @PostMapping(value = "/getRedisStringValue")
@@ -60,6 +64,12 @@ public class RedisController {
         return memberService.updateMember(memberDto);
     }
 
+
+    @PostMapping("/message")
+    public String saveMessage(@RequestBody MessageDto messageDto){
+        redisPubService.publish(new ChannelTopic("topic1"),messageDto.getMessage());
+        return "OK";
+    }
 
 
 }
