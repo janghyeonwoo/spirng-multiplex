@@ -1,10 +1,12 @@
 package com.example.multiplex.service;
 
 import com.example.multiplex.dto.MemberDto;
+import com.example.multiplex.dto.MemberEventDto;
 import com.example.multiplex.entity.Member;
 import com.example.multiplex.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
@@ -14,6 +16,7 @@ import java.time.YearMonth;
 public class MemberService {
 //    private final MemberRedisRepository memberRedisRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher publisher;
 
     public void addMember(String name){
         Member member = Member.builder()
@@ -37,5 +40,9 @@ public class MemberService {
         findMember.setName(memberDto.getName());
         findMember.setAge(memberDto.getAge());
         return findMember.getMemberDto();
+    }
+
+    public void sendMemberMessage(MemberEventDto memberEventDto){
+        publisher.publishEvent(memberEventDto);
     }
 }
