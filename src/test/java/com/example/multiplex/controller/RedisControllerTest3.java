@@ -4,11 +4,11 @@ import com.example.multiplex.dto.MemberDto;
 import com.example.multiplex.dto.RedisDto;
 import com.example.multiplex.entity.Member;
 import com.example.multiplex.enums.RedisKey;
-import com.example.multiplex.redis.RedisExRepository;
-import com.example.multiplex.redis.RedisRepository;
+import com.example.multiplex.redis.*;
 import com.example.multiplex.repository.MemberRepository;
 import com.example.multiplex.util.RedisUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.catalina.authenticator.SavedRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,7 +37,10 @@ public class RedisControllerTest3 {
     private MemberRepository memberRepository;
 
     @Autowired
-    private RedisExRepository<String,Object> redisRepository;
+    private AbstractRedisRepository<String,Object> redisRepository;
+
+    @Autowired
+    private AbstractRedisExHashRepository<String, String,MemberDto> redisHashRepository;
 
     @DisplayName("키여부 확인")
     @Test
@@ -75,6 +80,26 @@ public class RedisControllerTest3 {
     @Test
     public void saveZset(){
         IntStream.rangeClosed(1,10).forEach(i -> redisRepository.saveZSet("test:zset:1111", "member" + i, i));
+    }
+
+
+    @DisplayName("set Hash 하기")
+    @Test
+    public void saveHash(){
+        MemberDto memberDto = MemberDto.builder().age(10).id("aa").build();
+        Map<String,MemberDto>  memberDtoMap = new LinkedHashMap<>();
+        memberDtoMap.put(memberDto.getId(),memberDto);
+        redisHashRepository.saveHash("hash:1", memberDtoMap);
+    }
+
+
+
+
+    @DisplayName("find Hash 하기")
+    @Test
+    public void findHash(){
+
+        System.out.println(redisHashRepository.findHash("hash:1"));
     }
 
 

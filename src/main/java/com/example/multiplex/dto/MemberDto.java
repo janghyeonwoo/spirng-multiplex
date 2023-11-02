@@ -12,6 +12,7 @@ import java.time.YearMonth;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @RedisHash("member")
 public class MemberDto implements Serializable {
     @Id
