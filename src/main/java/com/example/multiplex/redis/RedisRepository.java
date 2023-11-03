@@ -14,8 +14,6 @@ public interface RedisRepository<K,V> {
     Boolean saveIfAbsent(K key, V value);
     Boolean pushToList(K key, V value);
     Boolean containsKey(K key);
-//    void save(K key, List<V> value);
-//    void save(K key, List<V> value, Long time);
 
     void saveZSet(K key, V value, double score);
 
@@ -27,4 +25,6 @@ public interface RedisRepository<K,V> {
     List<V> findList(K key, long start, long end);
 
     V findById(K key);
+
+    Boolean deleteById(K key);
 }

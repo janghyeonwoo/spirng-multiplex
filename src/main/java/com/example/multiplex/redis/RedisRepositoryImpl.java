@@ -2,6 +2,7 @@ package com.example.multiplex.redis;
 
 
 import com.example.multiplex.dto.RedisDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.BoundValueOperations;
@@ -17,15 +18,18 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@RequiredArgsConstructor
 @Repository
 public class RedisRepositoryImpl<K, V> extends AbstractRedisRepository<K, V> {
     private final RedisTemplate<K, V> redisTemplate;
+    private final ObjectMapper objectMapper;
     private final long startIndex = 0;
     private final long endIndex = -1;
 
-
-
+    public RedisRepositoryImpl(RedisTemplate<K, V> redisTemplate, ObjectMapper objectMapper) {
+        super(redisTemplate);
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Boolean containsKey(K key) {
@@ -170,5 +174,20 @@ public class RedisRepositoryImpl<K, V> extends AbstractRedisRepository<K, V> {
     @Override
     public V findById(K key) {
         return redisTemplate.opsForValue().get(key);
+    }
+
+
+    @Override
+    public void pushToList(K key, List<V> value) {
+        for(V item : value){
+            pushToList(key,item);
+        }
+    }
+
+    @Override
+    public void pushToList(K key, List<V> value, Long time) {
+         for(V item : value){
+            pushToList(key,item,time);
+        }
     }
 }

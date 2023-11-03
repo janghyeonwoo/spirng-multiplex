@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RedisControllerTest3 {
@@ -37,7 +38,7 @@ public class RedisControllerTest3 {
     private MemberRepository memberRepository;
 
     @Autowired
-    private AbstractRedisRepository<String,Object> redisRepository;
+    private RedisRepositoryImpl<String,Object> redisRepository;
 
     @Autowired
     private AbstractRedisExHashRepository<String, String,MemberDto> redisHashRepository;
@@ -98,8 +99,28 @@ public class RedisControllerTest3 {
     @DisplayName("find Hash 하기")
     @Test
     public void findHash(){
-
         System.out.println(redisHashRepository.findHash("hash:1"));
+    }
+
+
+    @DisplayName("findZSetWithScores")
+    @Test
+    public void findZSetWithScores(){
+        System.out.println(redisRepository.findZSetWithScores("test:zset:1111"));
+    }
+
+
+    @DisplayName("setList")
+    @Test
+    public void setList() {
+        redisRepository.pushToList("push:list",getMembers(10));
+    }
+
+
+
+    public List<MemberDto> getMembers(int num){
+        return IntStream.rangeClosed(1,num).mapToObj(i -> MemberDto.builder().age(num).name("ss_"+ i).build())
+                .collect(Collectors.toList());
     }
 
 

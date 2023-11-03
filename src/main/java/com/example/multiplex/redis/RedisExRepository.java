@@ -10,6 +10,9 @@ public interface RedisExRepository<K,V> extends RedisRepository<K,V>{
     Boolean pushToList(K key, V value, long time);
     void save(K key, V value, long time);
 
+    void pushToList(K key, List<V> value);
+    void pushToList(K key, List<V> value, Long time);
+
     //##################################
 
     List<RedisDto> findZSetWithScores(K key);
