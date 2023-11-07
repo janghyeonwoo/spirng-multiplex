@@ -31,20 +31,8 @@ public class RedisRepositoryImpl<K, V> extends AbstractRedisRepository<K, V> {
         this.objectMapper = objectMapper;
     }
 
-    @Override
-    public Boolean containsKey(K key) {
-        try {
-            return redisTemplate.hasKey(key);
-        } catch (Exception e) {
-            log.error("Redis Error.....");
-        }
-        return false;
-    }
 
-    @Override
-    public void save(K key, V value) {
-        redisTemplate.opsForValue().set(key, value);
-    }
+
 
 
     @Override
