@@ -1,26 +1,18 @@
 package com.example.multiplex.controller;
 
+import com.example.multiplex.dto.Code2Dto;
 import com.example.multiplex.dto.MemberDto;
-import com.example.multiplex.dto.RedisDto;
-import com.example.multiplex.entity.Member;
-import com.example.multiplex.enums.RedisKey;
-import com.example.multiplex.redis.*;
+import com.example.multiplex.redis.AbstractRedisExHashRepository;
+import com.example.multiplex.redis.RedisRepositoryImpl;
 import com.example.multiplex.repository.MemberRepository;
-import com.example.multiplex.util.RedisUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.catalina.authenticator.SavedRequest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,7 +33,7 @@ public class RedisControllerTest3 {
     private RedisRepositoryImpl<String,Object> redisRepository;
 
     @Autowired
-    private AbstractRedisExHashRepository<String, String,MemberDto> redisHashRepository;
+    private AbstractRedisExHashRepository<String, Long, List<Code2Dto>> redisHashRepository;
 
     @DisplayName("키여부 확인")
     @Test
@@ -87,10 +79,9 @@ public class RedisControllerTest3 {
     @DisplayName("set Hash 하기")
     @Test
     public void saveHash(){
-        MemberDto memberDto = MemberDto.builder().age(10).id("aa").build();
-        Map<String,MemberDto>  memberDtoMap = new LinkedHashMap<>();
-        memberDtoMap.put(memberDto.getId(),memberDto);
-        redisHashRepository.saveHash("hash:1", memberDtoMap);
+        Map<Long, List<Code2Dto>> code2Map = IntStream.rangeClosed(1,10).mapToObj(i -> Code2Dto.builder().code1Idx(1L).code2Idx((long) i).value("value_"+i).build()).collect(Collectors.groupingBy(Code2Dto::getCode2Idx));
+
+        redisHashRepository.saveHash("hash:1", code2Map);
     }
 
 
@@ -99,7 +90,8 @@ public class RedisControllerTest3 {
     @DisplayName("find Hash 하기")
     @Test
     public void findHash(){
-        System.out.println(redisHashRepository.findHash("hash:1"));
+        Map<Long, List<Code2Dto>> hash = redisHashRepository.findHash("hash:1");
+        System.out.println(hash.get(1L));
     }
 
 
@@ -116,16 +108,10 @@ public class RedisControllerTest3 {
         redisRepository.pushToList("push:list",getMembers(10));
     }
 
-
-
     public List<MemberDto> getMembers(int num){
         return IntStream.rangeClosed(1,num).mapToObj(i -> MemberDto.builder().age(num).name("ss_"+ i).build())
                 .collect(Collectors.toList());
     }
-
-
-
-
 
 }
 

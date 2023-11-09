@@ -56,8 +56,13 @@ public class RedisConfig {
         RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
         GenericJackson2JsonRedisSerializer GJ = new GenericJackson2JsonRedisSerializer(new ObjectMapper());
         redisTemplate.setConnectionFactory(redisConnectionFactory());
+
         redisTemplate.setKeySerializer(GJ);
         redisTemplate.setValueSerializer(GJ);
+
+        redisTemplate.setHashKeySerializer(GJ);
+        redisTemplate.setHashValueSerializer(GJ);
+
         //@Transaction를 통한 트랜잭션을 관리하기 위함
         redisTemplate.setEnableTransactionSupport(true);
         return redisTemplate;
