@@ -1,24 +1,40 @@
+
+feign:
+  circuitbreaker:
+    enabled: true
+    alphanumeric-ids:
+      enabled: true
+resilience4j:
+  circuitbreaker:
+    instances:
+      DemoClientgetDemo:
+        minimumNumberOfCalls: 69
+  timelimiter:
+    instances:
+      DemoClientgetDemo:
+        timeoutDuration: 10s
+
+
+
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: create
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      use-new-id-generator-mappings: false
-    show-sql: true
-    properties:
-      hibernate.format_sql: true
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+    jpa:
+      hibernate:
+        ddl-auto: update
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      show-sql: true
+      properties:
+        hibernate.format_sql: true
+    servlet:
+      multipart:
+        max-file-size: 10MB
+        max-request-size: 10MB
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/batch?serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    datasource:
+      url: jdbc:mysql://localhost:3306/batch?serverTimezone=UTC&characterEncoding=UTF-8
+      username: root
+      password: 1234
+      driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 
@@ -34,3 +50,8 @@ cloud:
       bucket: pooney
     stack:
       auto: false
+
+
+logging:
+    level:
+        com.example.multiplex.open: DEBUG

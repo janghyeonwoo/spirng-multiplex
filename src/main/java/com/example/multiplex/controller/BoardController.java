@@ -4,7 +4,6 @@ import com.example.multiplex.entity.Board;
 import com.example.multiplex.func.FileFunc;
 import com.example.multiplex.service.BoardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
