@@ -79,5 +79,12 @@ public class RedisController {
         return "OK";
     }
 
+    @PostMapping("/transaction2")
+    public String transaction2() {
+        memberService.transactionRedisMember();
+        return "OK";
+    }
+
+
 
 }

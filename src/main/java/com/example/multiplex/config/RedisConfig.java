@@ -63,7 +63,7 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(GJ);
         redisTemplate.setHashValueSerializer(GJ);
 
-        //@Transaction를 통한 트랜잭션을 관리하기 위함
+        //@Transaction를 통한 트랜잭션을 관리하기 위함 , RedisRepository 사용시 Transaction 불가능함 반드시 RedisTemplate를 사용해아함!
         redisTemplate.setEnableTransactionSupport(true);
         return redisTemplate;
     }
