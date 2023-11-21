@@ -3,12 +3,14 @@ package com.example.multiplex.service;
 import com.example.multiplex.dto.MemberDto;
 import com.example.multiplex.dto.MemberEventDto;
 import com.example.multiplex.entity.Member;
+import com.example.multiplex.redis.RedisRepositoryImpl;
 import com.example.multiplex.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.YearMonth;
 
 @RequiredArgsConstructor
@@ -17,6 +19,7 @@ public class MemberService {
 //    private final MemberRedisRepository memberRedisRepository;
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher publisher;
+    private final RedisRepositoryImpl<String,MemberDto> redisRepository;
 
     public void addMember(String name){
         Member member = Member.builder()
@@ -44,5 +47,19 @@ public class MemberService {
 
     public void sendMemberMessage(MemberEventDto memberEventDto){
         publisher.publishEvent(memberEventDto);
+    }
+
+    @Transactional
+    public void transactionMember(){
+        String name = "trans_name";
+        int age = 10;
+
+        MemberDto memberDto  = MemberDto.builder().name(name).age(age).build();
+        redisRepository.save("trans:10", memberDto);
+
+        Member trans = Member.builder().age(99).id("trans").build();
+        memberRepository.save(trans);
+
+        if(true) throw new RuntimeException("트랜잭션 테스트 에러 발생!!!");
     }
 }

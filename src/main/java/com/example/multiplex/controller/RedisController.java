@@ -37,7 +37,7 @@ public class RedisController {
     @PostMapping(value = "/setRedisStringValue")
     public void setRedisStringValue(@RequestBody RedisDto redisDto) {
         ValueOperations<String, String> stringValueOperations = stringRedisTemplate.opsForValue();
-        stringValueOperations.set(redisDto.getKey(),redisDto.getValue());
+        stringValueOperations.set(redisDto.getKey(), redisDto.getValue());
     }
 
     @GetMapping("/getSessionId")
@@ -46,7 +46,7 @@ public class RedisController {
     }
 
     @PostMapping("/save/member")
-    public String addMember(@RequestParam("name") String name){
+    public String addMember(@RequestParam("name") String name) {
         memberService.addMember(name);
         return name;
     }
@@ -57,17 +57,25 @@ public class RedisController {
     public MemberDto findMember(@RequestParam("id") String id) {
         return memberService.findMember(id);
     }
+
     //#memberDto.id -> request의 필드명
     @CachePut(key = "#memberDto.id", value = "memberInfo")
     @PutMapping("/update/member")
-    public MemberDto updateMember(@RequestBody MemberDto memberDto){
+    public MemberDto updateMember(@RequestBody MemberDto memberDto) {
         return memberService.updateMember(memberDto);
     }
 
 
     @PostMapping("/message")
-    public String saveMessage(@RequestBody MessageDto messageDto){
-        redisPubService.publish(new ChannelTopic("topic1"),messageDto.getMessage());
+    public String saveMessage(@RequestBody MessageDto messageDto) {
+        redisPubService.publish(new ChannelTopic("topic1"), messageDto.getMessage());
+        return "OK";
+    }
+
+
+    @PostMapping("/transaction")
+    public String transaction() {
+        memberService.transactionMember();
         return "OK";
     }
 
